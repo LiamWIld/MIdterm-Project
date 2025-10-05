@@ -1,13 +1,10 @@
 pipeline {
 	agent any
-
   stages {
-		stage('Checkout') {
-			steps { checkout scm }
-    }
+		stage('Checkout') { steps { checkout scm } }
 
     stage('Build & Test') {
-			steps { sh 'mvn -q clean test package' }
+			steps { sh './mvnw -q clean test package' }
       post {
 				always {
 					junit '**/target/surefire-reports/*.xml'
@@ -16,9 +13,7 @@ pipeline {
       }
     }
 
-    stage('Docker Build') {
-			steps { sh 'docker build -t pipeline-demo:latest .' }
-    }
+    stage('Docker Build') { steps { sh 'docker build -t pipeline-demo:latest .' } }
 
     stage('Run (Smoke)') {
 			steps {
