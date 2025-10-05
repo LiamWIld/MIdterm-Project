@@ -1,24 +1,26 @@
-stage('Build & Test') {
-	steps {
+node {
+	stage('Checkout') {
+		checkout scm
+  }
+
+  stage('Build & Test') {
 		sh '''
       set -eux
-      # show perms so we can see what's going on
       ls -la
-
-      # ensure mvnw is executable (Windows clones often drop the +x bit)
       [ -x mvnw ] || chmod +x mvnw
-
-      # normalize Windows CRLF line endings if present (prevents sh^M errors)
-      sed -i 's/\r$//' mvnw
-
-      # run build with wrapper
+      sed -i 's/\r$//' mvnw || true
       ./mvnw -q -B -V clean test package
     '''
+    junit '**/target/surefire-reports/*.xml'
+    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
   }
-  post {
-		always {
-			junit '**/target/surefire-reports/*.xml'
-      archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-    }
+
+  stage('Docker Build') {
+		sh 'docker build -t pipeline-demo:latest .'
+  }
+
+  stage('Run (Smoke)') {
+		sh 'docker run --rm pipeline-demo:latest | tee output.txt'
+    sh 'grep -q "Hello World" output.txt'
   }
 }
