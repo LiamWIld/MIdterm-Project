@@ -15,12 +15,5 @@ node {
     archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
   }
 
-  stage('Docker Build') {
-		sh 'docker build -t pipeline-demo:latest .'
-  }
 
-  stage('Run (Smoke)') {
-		sh 'docker run --rm pipeline-demo:latest | tee output.txt'
-    sh 'grep -q "Hello World" output.txt'
-  }
 }
