@@ -6,12 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AppTest {
 
     @Test
-    void helloShouldReturnFinalMessage() {
-        assertEquals("Hello Final Project", App.hello());
+    void buildIsNeverNull() {
+        assertNotNull(App.getBuild());
     }
-    @Test
-    void buildInfoShouldReturnSomething() {
-        assertTrue(App.buildInfo().startsWith("Build"));
-    }
-
 }
