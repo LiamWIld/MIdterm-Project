@@ -14,6 +14,6 @@ node {
 
         bat 'docker rm -f pipeline-demo || exit 0'
 
-        bat 'docker run -d -p 9090:8080 --name pipeline-demo pipeline-demo'
+        bat 'docker run -d -p 9091:8080 --name pipeline-demo pipeline-demo'
     }
 }
