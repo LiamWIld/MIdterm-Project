@@ -5,18 +5,17 @@ node {
     }
 
     stage('Build & Test') {
-        sh '''
-            chmod +x mvnw || true
-            ./mvnw clean test package
+        bat '''
+            mvnw.cmd clean test package
         '''
         junit '**/target/surefire-reports/*.xml'
         archiveArtifacts artifacts: 'target/*.jar'
     }
 
     stage('Deploy') {
-        sh '''
+        bat '''
             docker build -t pipeline-demo .
-            docker rm -f pipeline-demo || true
+            docker rm -f pipeline-demo || exit 0
             docker run -d -p 8080:8080 --name pipeline-demo pipeline-demo
         '''
     }
