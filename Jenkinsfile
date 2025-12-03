@@ -1,19 +1,25 @@
-node {
+pipeline {
+    agent any
 
-    stage('Checkout') {
-        checkout scm
-    }
+    stages {
 
-    stage('Build & Test') {
-        bat 'mvnw.cmd clean test package'
-    }
+        stage('Build & Test') {
+            steps {
+                bat 'mvnw.cmd clean package'
+            }
+        }
 
-    stage('Deploy') {
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t pipeline-demo .'
+            }
+        }
 
-        bat 'docker build -t pipeline-demo .'
-
-        bat 'docker rm -f pipeline-demo || exit 0'
-
-        bat 'docker run -d -p 9091:8080 --name pipeline-demo pipeline-demo'
+        stage('Deploy') {
+            steps {
+                bat 'docker rm -f pipeline-demo || exit 0'
+                bat 'docker run -d -p 9091:8080 --name pipeline-demo pipeline-demo'
+            }
+        }
     }
 }
