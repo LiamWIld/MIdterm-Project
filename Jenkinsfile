@@ -2,23 +2,22 @@ pipeline {
     agent any
 
     stages {
-
         stage('Build & Test') {
             steps {
-                bat 'mvnw.cmd clean package'
+                sh './mvnw clean test package'
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat 'docker build -t pipeline-demo .'
+                sh 'docker build -t pipeline-demo .'
             }
         }
 
         stage('Deploy') {
             steps {
-                bat 'docker rm -f pipeline-demo || exit 0'
-                bat 'docker run -d -p 9091:8080 --name pipeline-demo pipeline-demo'
+                sh 'docker rm -f pipeline-demo || true'
+                sh 'docker run -d -p 9091:8080 --name pipeline-demo pipeline-demo'
             }
         }
     }
