@@ -1,35 +1,56 @@
 package com.example;
 
 import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class App {
 
-    private static final Logger log = LoggerFactory.getLogger(App.class);
+    private static final long startTime = System.currentTimeMillis();
+    private static int requestCount = 0;
 
     public static void main(String[] args) throws Exception {
 
-        log.info("Starting application...");
-
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
-        server.createContext("/", exchange -> respond(exchange, "Hello Final Project"));
-        server.createContext("/health", exchange -> respond(exchange, "OK"));
+        server.createContext("/", exchange -> {
+            try {
+                respond(exchange, "Hello Final Project");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        server.createContext("/health", exchange -> {
+            try {
+                requestCount++;
+
+                long uptime = System.currentTimeMillis() - startTime;
+
+                String json =
+                        "{\n" +
+                                "  \"status\": \"UP\",\n" +
+                                "  \"uptime_ms\": " + uptime + ",\n" +
+                                "  \"requests\": " + requestCount + "\n" +
+                                "}";
+
+                respond(exchange, json);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         server.start();
-
-        log.info("Server started on port 8080");
+        System.out.println("Server running on port 8080");
     }
 
-    private static void respond(HttpExchange exchange, String msg) throws IOException {
+    private static void respond(HttpExchange exchange, String msg) throws Exception {
+
+        exchange.getResponseHeaders().add("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, msg.getBytes().length);
+
         OutputStream os = exchange.getResponseBody();
         os.write(msg.getBytes());
         os.close();
